@@ -1,0 +1,5 @@
+git+https://github.com/speechki-book/aiochclient.git#egg=aiochclient
+aiodns
+cchardet
+ciso8601>=2.1.1
+aiohttp
