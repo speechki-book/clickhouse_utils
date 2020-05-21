@@ -13,8 +13,8 @@ setup(
     description="utils for work with clickhouse based on aiochclient",  # Give a short description about your library
     author="Pavel Maltsev",  # Type in your name
     author_email="pasha@speechki.org",  # Type in your E-Mail
-    url="https://github.com/maximdanilchenko/aiochclient",  # Provide either the link to your github or to your website
-    download_url="https://github.com/maximdanilchenko/aiochclient",  # I explain this later on
+    url="https://github.com/speechki-book/clickhouse_utils",  # Provide either the link to your github or to your website
+    download_url="https://github.com/speechki-book/clickhouse_utils",  # I explain this later on
     keywords=[
         "ClickHouse",
         "Python",
