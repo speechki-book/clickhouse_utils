@@ -22,7 +22,7 @@ setup(
         "aiochclient",
     ],  # Keywords that define your package best
     install_requires=[  # I get to this in a second
-        "git+https://github.com/speechki-book/aiochclient.git#egg=aiochclient",
+        "aiochclient @ git+https://github.com/speechki-book/aiochclient.git#egg=aiochclient",
         "aiohttp>=3.6.2",
         "aiodns",
         "cchardet",
