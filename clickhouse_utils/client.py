@@ -68,7 +68,7 @@ class AbstractChExecutorClient(ABC):
         """
         raise NotImplementedError
 
-    async def create(self, table: str, values: List[tuple]) -> None:
+    async def create(self, table: str, values: List[tuple], **kwargs) -> None:
         """
         Insert data in table
 
@@ -84,6 +84,7 @@ class AbstractChExecutorClient(ABC):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> List[Record]:
         """
         Fetch many rows from table
@@ -101,6 +102,7 @@ class AbstractChExecutorClient(ABC):
         table: str,
         filter_params: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> Optional[Record]:
         """
         Fetch first row from table
@@ -118,6 +120,7 @@ class AbstractChExecutorClient(ABC):
         table: Optional[str] = None,
         filter_params: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> Optional[int]:
         """
         Fetch first value of the first row from query result or None
@@ -132,7 +135,7 @@ class AbstractChExecutorClient(ABC):
         """
         raise NotImplementedError
 
-    async def raw(self, query: str, command: str = "fetch") -> Any:
+    async def raw(self, query: str, command: str = "fetch", **kwargs) -> Any:
         """
         Execute complete SQL query
 
@@ -157,7 +160,7 @@ class ChExecutorClient(AbstractChExecutorClient):
 
         return cls(session, url, user, password, database, compress_response)
 
-    async def create(self, table: str, values: List[tuple]) -> None:
+    async def create(self, table: str, values: List[tuple], **kwargs) -> None:
 
         query = self.sql_builder.insert((self.database, table), values)
 
@@ -169,6 +172,7 @@ class ChExecutorClient(AbstractChExecutorClient):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> List[Record]:
 
         query = self.sql_builder.select(
@@ -182,6 +186,7 @@ class ChExecutorClient(AbstractChExecutorClient):
         table: str,
         filter_params: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> Optional[Record]:
 
         query = self.sql_builder.select(
@@ -196,18 +201,21 @@ class ChExecutorClient(AbstractChExecutorClient):
         table: Optional[str] = None,
         filter_params: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        **kwargs,
     ) -> Optional[int]:
 
         assert (query is not None) or (table is not None), "must be use query or table"
 
         if table:
-            query = self.sql_builder.select((self.database, table), filter_params=filter_params, fields=fields)
+            query = self.sql_builder.select(
+                (self.database, table), filter_params=filter_params, fields=fields
+            )
 
         count_query = f"""SELECT count() FROM ({query}) AS c_t"""
 
         return await self.client.fetchval(count_query)
 
-    async def raw(self, query: str, command: str = "fetch") -> Any:
+    async def raw(self, query: str, command: str = "fetch", **kwargs) -> Any:
 
         commands = ["fetch", "fetchval", "execute", "fetchrow", "iterate"]
 
