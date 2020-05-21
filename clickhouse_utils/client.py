@@ -112,11 +112,22 @@ class AbstractChExecutorClient(ABC):
         """
         raise NotImplementedError
 
-    async def get_count(self, query: str) -> Optional[int]:
+    async def get_count(
+        self,
+        query: Optional[str] = None,
+        table: Optional[str] = None,
+        filter_params: Optional[dict] = None,
+        fields: Optional[List[str]] = None,
+    ) -> Optional[int]:
         """
         Fetch first value of the first row from query result or None
 
+        Don't use query if contain table. Use case - pagination
+
         :param query: complete SQL query, which use how subquery
+        :param table: table name in database
+        :param filter_params: params which will be use in condition
+        :param fields: list fields which will be use in select
         :return: return count rows in query
         """
         raise NotImplementedError
@@ -179,7 +190,18 @@ class ChExecutorClient(AbstractChExecutorClient):
 
         return await self.client.fetchrow(query)
 
-    async def get_count(self, query: str) -> Optional[int]:
+    async def get_count(
+        self,
+        query: Optional[str] = None,
+        table: Optional[str] = None,
+        filter_params: Optional[dict] = None,
+        fields: Optional[List[str]] = None,
+    ) -> Optional[int]:
+
+        assert (query is not None) or (table is not None), "must be use query or table"
+
+        if table:
+            query = self.sql_builder.select((self.database, table), filter_params=filter_params, fields=fields)
 
         count_query = f"""SELECT count() FROM ({query}) AS c_t"""
 
