@@ -24,6 +24,9 @@ setup(
     install_requires=[  # I get to this in a second
         "git+https://github.com/speechki-book/aiochclient.git#egg=aiochclient",
         "aiohttp>=3.6.2",
+        "aiodns",
+        "cchardet",
+        "ciso8601>=2.1.1"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package

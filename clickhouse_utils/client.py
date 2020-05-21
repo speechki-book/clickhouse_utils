@@ -14,13 +14,13 @@ class AbstractChExecutorClient(ABC):
     click_house_client  = AbstractChExecutorClient.init_client(session, url, user, password, database)
     obj = click_house_client.get_object("table", filter_params=filter_params, fields=fields)
 
-    objs = click_house_client.get_list("table", filter_params=filter_params, fields=fields, pagination=pagination)
+    objs = await click_house_client.get_list("table", filter_params=filter_params, fields=fields, pagination=pagination)
 
-    count = click_house_client.get_count(query)
+    count = await click_house_client.get_count(query)
 
-    click_house_client.create("table", values)
+    await click_house_client.create("table", values)
 
-    click_house_client.raw(query, "fetch")
+    await click_house_client.raw(query, "fetch")
     """
 
     sql_builder = BaseSQLBuilder

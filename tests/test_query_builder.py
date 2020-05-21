@@ -6,6 +6,7 @@ import datetime as dt
 destination = ("test_db", "test_table")
 eq_error_msg = "queries not equal"
 
+
 def test_insert():
 
     values = [
