@@ -87,6 +87,10 @@ class SQLBuilder(object):
     def _make_insert_query(self):
         val_str = rows2ch(*self.values).decode()
 
+        if self.fields:
+            fields = ", ".join(self.fields)
+            return f"INSERT INTO {self.db}.{self.table} ({fields}) VALUES {val_str}"
+
         return f"INSERT INTO {self.db}.{self.table} VALUES {val_str}"
 
     def _make_select_query(self):
@@ -120,9 +124,9 @@ class BaseSQLBuilder(SQLBuilder):
     """
 
     @classmethod
-    def insert(cls, destination: Tuple[str, str], values: List[tuple]) -> str:
+    def insert(cls, destination: Tuple[str, str], values: List[tuple], fields: Optional[List[str]] = None) -> str:
         action = "insert"
-        return cls(action, destination[1], destination[0], values)._build()
+        return cls(action, destination[1], destination[0], values, fields=fields)._build()
 
     @classmethod
     def select(
