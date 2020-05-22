@@ -21,6 +21,20 @@ def test_insert():
     assert insert_query == check_insert, eq_error_msg
 
 
+def test_insert_fields():
+    values = [
+        (1, (dt.date(2018, 9, 7), None)),
+        (2, (dt.date(2018, 9, 8), 3.14)),
+    ]
+
+    fields = ["id", "created", "amount"]
+
+    check_insert = "INSERT INTO test_db.test_table (id, created, amount) VALUES (1,('2018-09-07',NULL)),(2,('2018-09-08',3.14))"
+
+    insert_query = BaseSQLBuilder.insert(destination, values, fields)
+
+    assert insert_query == check_insert, eq_error_msg
+
 def test_simple_select():
     select_query = BaseSQLBuilder.select(destination)
 

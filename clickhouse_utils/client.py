@@ -160,9 +160,9 @@ class ChExecutorClient(AbstractChExecutorClient):
 
         return cls(session, url, user, password, database, compress_response)
 
-    async def create(self, table: str, values: List[tuple], **kwargs) -> None:
+    async def create(self, table: str, values: List[tuple], fields: List[str] = None, **kwargs) -> None:
 
-        query = self.sql_builder.insert((self.database, table), values)
+        query = self.sql_builder.insert((self.database, table), values, fields)
 
         return await self.client.execute(query)
 
