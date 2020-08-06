@@ -13,6 +13,7 @@ class SQLBuilder(object):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        ordering: Optional[List[str]] = None,
     ):
         """
 
@@ -23,9 +24,11 @@ class SQLBuilder(object):
         :param filter_params: conditions for "where" block
         :param pagination: settings for pagination LIMIT OFFSET
         :param fields: name fields which use in select
+        :param ordering: ORDER_BY settings
         """
         self.values = values
         self.filter_params = filter_params
+        self.ordering = ordering
         self.pagination = pagination
         self.fields = fields
         self.action = action
@@ -79,7 +82,19 @@ class SQLBuilder(object):
             conditions.append(OPERATORS[operator].to_sql(field_name, value))
 
         where_str = " and ".join(conditions)
-        return f" WHERE {where_str}"
+        return f"WHERE {where_str}"
+
+    @staticmethod
+    def ordering_string(ordering: List[str]) -> str:
+        ordering_list = []
+        for item in ordering:
+            if len(item) > 0 and item[0] == "-":
+                ordering_list.append(item[1:] + " DESC")
+            elif len(item) > 0:
+                ordering_list.append(item)
+
+        ordering_string = ", ".join(ordering_list)
+        return f"ORDER BY {ordering_string}"
 
     def _build(self) -> str:
         return getattr(self, f"_make_{self.action}_query")()
@@ -106,27 +121,46 @@ class SQLBuilder(object):
         if self.pagination:
             limit = self.pagination.get("limit", 100)
             offset = self.pagination.get("offset", 0)
-            pagination_string = f" LIMIT {limit} OFFSET {offset}"
+            pagination_string = f"LIMIT {limit} OFFSET {offset}"
         else:
             pagination_string = ""
 
-        return (
-            f"{select_str} FROM {self.db}.{self.table}{where_string}{pagination_string}"
+        if self.ordering:
+            ordering_string = self.ordering_string(self.ordering)
+        else:
+            ordering_string = ""
+
+        result = filter(
+            lambda item: item,
+            [
+                f"{select_str} FROM {self.db}.{self.table}",
+                where_string,
+                pagination_string,
+                ordering_string,
+            ],
         )
+        return " ".join(result)
 
 
 class BaseSQLBuilder(SQLBuilder):
     """
     Usage
 
-    select_query = BaseSQLBuilder.select(destination, filter_params, pagination, fields)
+    select_query = BaseSQLBuilder.select(destination, filter_params, pagination, fields, ordering)
     insert_query = BaseSQLBuilder.insert(destination, values)
     """
 
     @classmethod
-    def insert(cls, destination: Tuple[str, str], values: List[tuple], fields: Optional[List[str]] = None) -> str:
+    def insert(
+        cls,
+        destination: Tuple[str, str],
+        values: List[tuple],
+        fields: Optional[List[str]] = None,
+    ) -> str:
         action = "insert"
-        return cls(action, destination[1], destination[0], values, fields=fields)._build()
+        return cls(
+            action, destination[1], destination[0], values, fields=fields
+        )._build()
 
     @classmethod
     def select(
@@ -135,6 +169,7 @@ class BaseSQLBuilder(SQLBuilder):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        ordering: Optional[List[str]] = None,
     ) -> str:
         action = "select"
         filter_params = cls._prepare_query_params(filter_params)
@@ -145,4 +180,5 @@ class BaseSQLBuilder(SQLBuilder):
             filter_params=filter_params,
             pagination=pagination,
             fields=fields,
+            ordering=ordering,
         )._build()
