@@ -84,6 +84,7 @@ class AbstractChExecutorClient(ABC):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        ordering: Optional[List[str]] = None,
         **kwargs,
     ) -> List[Record]:
         """
@@ -93,6 +94,7 @@ class AbstractChExecutorClient(ABC):
         :param filter_params: params which will be use in condition
         :param pagination: dict with values limit and offset
         :param fields: list fields which will be use in select
+        :param ordering: ORDER BY fields
         :return: list records
         """
         raise NotImplementedError
@@ -174,11 +176,12 @@ class ChExecutorClient(AbstractChExecutorClient):
         filter_params: Optional[dict] = None,
         pagination: Optional[dict] = None,
         fields: Optional[List[str]] = None,
+        ordering: Optional[List[str]] = None,
         **kwargs,
     ) -> List[Record]:
 
         query = self.sql_builder.select(
-            (self.database, table), filter_params, pagination, fields
+            (self.database, table), filter_params, pagination, fields, ordering
         )
 
         return await self.client.fetch(query)
@@ -221,7 +224,7 @@ class ChExecutorClient(AbstractChExecutorClient):
 
         commands = ["fetch", "fetchval", "execute", "fetchrow", "iterate"]
 
-        assert command in commands, "it is't accepted command"
+        assert command in commands, "it isn't accepted command"
 
         method = getattr(self.client, command)
 
