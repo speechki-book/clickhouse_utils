@@ -35,6 +35,7 @@ def test_insert_fields():
 
     assert insert_query == check_insert, eq_error_msg
 
+
 def test_simple_select():
     select_query = BaseSQLBuilder.select(destination)
 
@@ -98,15 +99,16 @@ def test_select():
         "n__gt": now,
         "m__gte": now,
     }
+    ordering = ["-created"]
 
     limit = 100
     offset = 0
 
     select_query = BaseSQLBuilder.select(destination, filter_params=conditions, fields=fields,
-                                         pagination={"limit": limit, "offset": offset})
+                                         pagination={"limit": limit, "offset": offset}, ordering=ordering)
 
     check_select = f"""SELECT {fields_str} FROM test_db.test_table WHERE (a = 'ex_test') and (b = 'exact_s') and """ \
                    f"""(c < 1) and (v <= 2) and (n > '{str_now}') and (m >= '{str_now}') """\
-                   f"LIMIT {limit} OFFSET {offset}"
+                   f"LIMIT {limit} OFFSET {offset} ORDER BY created DESC"
 
     assert select_query == check_select, eq_error_msg
