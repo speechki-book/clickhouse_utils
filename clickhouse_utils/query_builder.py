@@ -135,8 +135,8 @@ class SQLBuilder(object):
             [
                 f"{select_str} FROM {self.db}.{self.table}",
                 where_string,
-                pagination_string,
                 ordering_string,
+                pagination_string,
             ],
         )
         return " ".join(result)
